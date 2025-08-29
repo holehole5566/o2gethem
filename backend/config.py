@@ -1,11 +1,4 @@
 import os
-from pathlib import Path
-
-# Load .env file from project root
-env_path = Path(__file__).parent.parent / '.env'
-if env_path.exists():
-    from dotenv import load_dotenv
-    load_dotenv(env_path)
 
 class Settings:
     def __init__(self):

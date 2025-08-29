@@ -2,6 +2,8 @@
 
 A vibe coding project inspired by PTT-O2 and Dcard
 
+![](https://i.meee.com.tw/INFrhc0.jpg)
+
 ## Features
 
 - **User Authentication**: Register, login, and session management
