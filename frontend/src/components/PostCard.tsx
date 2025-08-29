@@ -1,4 +1,4 @@
-import type{ CommentPost } from '../types';
+import type { CommentPost } from '../types';
 
 interface PostCardProps {
   post: CommentPost;

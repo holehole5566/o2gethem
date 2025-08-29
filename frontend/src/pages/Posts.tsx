@@ -4,7 +4,8 @@ import { useForm } from "react-hook-form";
 import { createCommentPost, getCommentPosts, updateCommentPost, likeCommentPost, unlikeCommentPost } from "../services/api";
 import { useApi } from "../hooks/useApi";
 import PostCard from "../components/PostCard";
-import { CommentPost } from "../types";
+import Modal from "../components/Modal";
+import type { CommentPost } from "../types";
 import { GENDER_OPTIONS, HEIGHT_RANGE, BIRTH_YEAR_RANGE, MESSAGES } from "../constants";
 import type { RootState } from "../store";
 
@@ -162,14 +163,9 @@ export default function Posts() {
         </div>
       </div>
 
-      {selectedPost && (
-        <div className="modal" onClick={() => setSelectedPost(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
-              <h3>Post Details</h3>
-              <button onClick={() => setSelectedPost(null)} style={{background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer'}}>×</button>
-            </div>
-            
+      <Modal isOpen={!!selectedPost} onClose={() => setSelectedPost(null)} title="Post Details">
+        {selectedPost && (
+          <>
             <div style={{fontSize: '0.8rem', marginBottom: '0.5rem'}}><strong>Gender:</strong> {selectedPost.target_gender}</div>
             <div style={{fontSize: '0.8rem', marginBottom: '0.5rem'}}><strong>Job:</strong> {selectedPost.target_job}</div>
             <div style={{fontSize: '0.8rem', marginBottom: '0.5rem'}}><strong>Birth Year:</strong> {selectedPost.target_birth_year}</div>
@@ -196,19 +192,13 @@ export default function Posts() {
                 <button onClick={() => handleEdit(selectedPost)}>Edit</button>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
 
-      {editingPost && (
-        <div className="modal" onClick={() => setEditingPost(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
-              <h3>Edit Post</h3>
-              <button onClick={() => setEditingPost(null)} style={{background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer'}}>×</button>
-            </div>
-            
-            <form onSubmit={handleSubmit(onSubmit)} className="form">
+      <Modal isOpen={!!editingPost} onClose={() => setEditingPost(null)} title="Edit Post">
+        {editingPost && (
+          <form onSubmit={handleSubmit(onSubmit)} className="form">
               <select {...register("target_gender", { required: "Gender is required" })}>
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option>
@@ -233,19 +223,11 @@ export default function Posts() {
               
               <button type="submit">Update</button>
             </form>
-          </div>
-        </div>
-      )}
+        )}
+      </Modal>
 
-      {showForm && (
-        <div className="modal" onClick={() => setShowForm(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
-              <h3>Create New Post</h3>
-              <button onClick={() => setShowForm(false)} style={{background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer'}}>×</button>
-            </div>
-            
-            <form onSubmit={handleSubmit(onSubmit)} className="form">
+      <Modal isOpen={showForm} onClose={() => setShowForm(false)} title="Create New Post">
+        <form onSubmit={handleSubmit(onSubmit)} className="form">
               <select {...register("target_gender", { required: "Gender is required" })}>
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option>
@@ -269,10 +251,8 @@ export default function Posts() {
               {errors.comment && <span style={{color: 'red', fontSize: '0.8rem'}}>{errors.comment.message}</span>}
               
               <button type="submit">Create</button>
-            </form>
-          </div>
-        </div>
-      )}
+        </form>
+      </Modal>
     </div>
   );
 }
