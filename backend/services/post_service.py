@@ -45,12 +45,13 @@ class PostService:
                            COUNT(pl.user_id) as likes_count,
                            CASE WHEN %s IS NOT NULL AND EXISTS(
                                SELECT 1 FROM comment_post_likes WHERE post_id = p.id AND user_id = %s
-                           ) THEN true ELSE false END as user_liked
+                           ) THEN true ELSE false END as user_liked,
+                           CASE WHEN p.user_id = %s THEN true ELSE false END as is_owner
                     FROM comment_posts p
                     LEFT JOIN comment_post_likes pl ON p.id = pl.post_id
                     WHERE 1=1
                 """
-                params = [user_id, user_id]
+                params = [user_id, user_id, user_id]
                 
                 if filters:
                     if filters.get('target_gender'):
@@ -85,6 +86,7 @@ class PostService:
         conn = self.get_connection()
         try:
             with conn.cursor() as cur:
+
                 cur.execute(
                     """
                     UPDATE comment_posts SET target_gender=%s, target_job=%s, target_birth_year=%s,

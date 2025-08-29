@@ -1,0 +1,16 @@
+import os
+from pathlib import Path
+
+# Load .env file from project root
+env_path = Path(__file__).parent.parent / '.env'
+if env_path.exists():
+    from dotenv import load_dotenv
+    load_dotenv(env_path)
+
+class Settings:
+    def __init__(self):
+        self.database_dsn: str = os.getenv("DATABASE_DSN", "postgresql://user:password@localhost:5432/database")
+        self.redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379")
+        self.session_expire_minutes: int = int(os.getenv("SESSION_EXPIRE_MINUTES", "30"))
+
+settings = Settings()

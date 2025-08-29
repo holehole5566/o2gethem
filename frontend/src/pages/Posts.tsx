@@ -197,7 +197,7 @@ export default function Posts() {
               ) : (
                 <span>❤️ {selectedPost.likes_count || 0}</span>
               )}
-              {isLoggedIn && selectedPost.user_id && (
+              {isLoggedIn && selectedPost.is_owner && (
                 <button onClick={() => handleEdit(selectedPost)}>Edit</button>
               )}
             </div>

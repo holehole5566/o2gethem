@@ -1,20 +1,20 @@
 const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:8000';
 
 export async function register(username: string, email: string, password: string) {
-  const res = await fetch(`${API_BASE}/register`, {
+  const res = await fetch(`${API_BASE}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, email, password }),
   });
   const data = await res.json();
   if (!res.ok) {
-    throw { status: res.status, message: data.detail || "Registration failed" };
+    throw { status: res.status, message: data.message || "Registration failed" };
   }
   return data;
 }
 
 export async function login(username: string, password: string) {
-  const res = await fetch(`${API_BASE}/login`, {
+  const res = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -22,13 +22,13 @@ export async function login(username: string, password: string) {
   });
   const data = await res.json();
   if (!res.ok) {
-    throw { status: res.status, message: data.detail || "Login failed" };
+    throw { status: res.status, message: data.message || "Login failed" };
   }
   return data;
 }
 
 export async function getProfile() {
-  const res = await fetch(`${API_BASE}/profile`, {
+  const res = await fetch(`${API_BASE}/users/profile`, {
     method: "GET",
     credentials: "include",
   });
@@ -36,7 +36,7 @@ export async function getProfile() {
 }
 
 export async function logout() {
-  const res = await fetch(`${API_BASE}/logout`, {
+  const res = await fetch(`${API_BASE}/auth/logout`, {
     method: "POST",
     credentials: "include",
   });
@@ -52,7 +52,7 @@ export async function createCommentPost(postData: any) {
   });
   const data = await res.json();
   if (!res.ok) {
-    throw { status: res.status, message: data.detail || "Failed to create comment post" };
+    throw { status: res.status, message: data.message || "Failed to create comment post" };
   }
   return data;
 }
@@ -75,7 +75,7 @@ export async function updateCommentPost(postId: number, postData: any) {
   });
   const data = await res.json();
   if (!res.ok) {
-    throw { status: res.status, message: data.detail || "Failed to update comment post" };
+    throw { status: res.status, message: data.message || "Failed to update comment post" };
   }
   return data;
 }
@@ -87,7 +87,7 @@ export async function likeCommentPost(postId: number) {
   });
   const data = await res.json();
   if (!res.ok) {
-    throw { status: res.status, message: data.detail || "Failed to like comment post" };
+    throw { status: res.status, message: data.message || "Failed to like comment post" };
   }
   return data;
 }
@@ -99,7 +99,7 @@ export async function unlikeCommentPost(postId: number) {
   });
   const data = await res.json();
   if (!res.ok) {
-    throw { status: res.status, message: data.detail || "Failed to unlike comment post" };
+    throw { status: res.status, message: data.message || "Failed to unlike comment post" };
   }
   return data;
 }
@@ -113,7 +113,7 @@ export async function createDatingPost(postData: any) {
   });
   const data = await res.json();
   if (!res.ok) {
-    throw { status: res.status, message: data.detail || "Failed to create dating post" };
+    throw { status: res.status, message: data.message || "Failed to create dating post" };
   }
   return data;
 }
@@ -136,7 +136,7 @@ export async function sendMessage(postId: number, content: string) {
   });
   const data = await res.json();
   if (!res.ok) {
-    throw { status: res.status, message: data.detail || "Failed to send message" };
+    throw { status: res.status, message: data.message || "Failed to send message" };
   }
   return data;
 }
@@ -158,7 +158,7 @@ export async function replyMessage(messageId: number, replyContent: string) {
   });
   const data = await res.json();
   if (!res.ok) {
-    throw { status: res.status, message: data.detail || "Failed to reply message" };
+    throw { status: res.status, message: data.message || "Failed to reply message" };
   }
   return data;
 }
@@ -172,7 +172,7 @@ export async function updateMessage(messageId: number, content: string) {
   });
   const data = await res.json();
   if (!res.ok) {
-    throw { status: res.status, message: data.detail || "Failed to update message" };
+    throw { status: res.status, message: data.message || "Failed to update message" };
   }
   return data;
 }
