@@ -1,21 +1,18 @@
 # O2geThem - Dating & Social Platform
 
-A modern dating and social platform built with FastAPI, React, and PostgreSQL.
+A vibe coding project inspired by PTT-O2 and Dcard
 
 ## Features
 
 - **User Authentication**: Register, login, and session management
 - **Comment Posts**: Share and interact with posts
 - **Dating Posts**: Create dating profiles and connect with others
-- **Messaging System**: Send and reply to messages
-- **Heart Currency**: Earn hearts through post interactions
-- **Responsive Design**: Mobile-friendly interface
+- **Mail System**: Send and reply to messages
 
 ## Tech Stack
 
 - **Backend**: FastAPI, PostgreSQL, Redis
 - **Frontend**: React, TypeScript, Vite
-- **Deployment**: Docker, Docker Compose
 
 ## Quick Start
 
