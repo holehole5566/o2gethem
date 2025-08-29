@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { register as registerApi } from "../services/api";
+import { useApi } from "../hooks/useApi";
 
 interface FormData {
   username: string;
@@ -9,28 +10,18 @@ interface FormData {
 }
 
 export default function Register() {
-  const [msg, setMsg] = useState("");
   const [isRegistered, setIsRegistered] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
+  const { execute, loading, error } = useApi();
 
   const onSubmit = async (data: FormData) => {
     try {
-      const result = await registerApi(data.username, data.email, data.password);
+      const result = await execute(() => registerApi(data.username, data.email, data.password));
       if (result.status === "ok") {
-        setMsg("Account created successfully!");
         setIsRegistered(true);
-      } else {
-        setMsg(result.message || "Registration failed");
       }
-    } catch (err: any) {
-      console.log(err);
-      if (err.status === 409) {
-        setMsg(err.message || "Username or email already exists");
-      } else if (err.status === 400) {
-        setMsg("Please fill in all required fields");
-      } else {
-        setMsg("Registration failed. Please try again.");
-      }
+    } catch (err) {
+      // Error handled by useApi hook
     }
   };
 
@@ -64,14 +55,17 @@ export default function Register() {
           />
           {errors.password && <span style={{color: 'red', fontSize: '0.8rem'}}>{errors.password.message}</span>}
           
-          <button type="submit">Register</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Creating account..." : "Register"}
+          </button>
         </form>
       ) : (
         <div className="form">
           <p>Your account has been created successfully!</p>
         </div>
       )}
-      {msg && <div className={`message ${isRegistered ? 'success' : 'error'}`}>{msg}</div>}
+      {error && <div className="message error">{error}</div>}
+      {isRegistered && <div className="message success">Account created successfully!</div>}
     </div>
   );
 }

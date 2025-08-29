@@ -1,48 +1,58 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getProfile } from "../services/api";
+import { useApi } from "../hooks/useApi";
+import type { User, CommentPost } from "../types";
+import { MESSAGES } from "../constants";
 import type { RootState } from "../store";
 
 interface ProfileData {
   user_id: number;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    hearts: number;
-  };
-  comment_posts: any[];
+  user: User;
+  comment_posts: CommentPost[];
   dating_posts: any[];
 }
 
 export default function Profile() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [err, setErr] = useState("");
   const { isLoggedIn } = useSelector((state: RootState) => state.auth);
+  const { execute, loading, error } = useApi();
 
   useEffect(() => {
     if (!isLoggedIn) {
       setProfile(null);
-      setErr("Please login");
       return;
     }
     
     async function fetchProfile() {
       try {
-        const data = await getProfile();
+        const data = await execute(() => getProfile());
         setProfile(data);
-        setErr("");
       } catch {
-        setErr("Please login");
+        // Error handled by useApi hook
       }
     }
     fetchProfile();
   }, [isLoggedIn]);
 
-  if (err) return (
+  if (!isLoggedIn) return (
     <div className="page-container">
       <h2>Profile</h2>
-      <div className="message error">{err}</div>
+      <div className="message error">{MESSAGES.PLEASE_LOGIN}</div>
+    </div>
+  );
+
+  if (loading) return (
+    <div className="page-container">
+      <h2>Profile</h2>
+      <div>Loading...</div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="page-container">
+      <h2>Profile</h2>
+      <div className="message error">{error}</div>
     </div>
   );
 

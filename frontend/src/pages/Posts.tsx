@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { createCommentPost, getCommentPosts, updateCommentPost, likeCommentPost, unlikeCommentPost } from "../services/api";
+import { useApi } from "../hooks/useApi";
+import PostCard from "../components/PostCard";
+import { CommentPost } from "../types";
+import { GENDER_OPTIONS, HEIGHT_RANGE, BIRTH_YEAR_RANGE, MESSAGES } from "../constants";
 import type { RootState } from "../store";
 
-interface PostData {
-  id?: number;
+interface PostFormData {
   target_gender: string;
   target_job: string;
   target_birth_year: number;
@@ -15,13 +18,14 @@ interface PostData {
 }
 
 export default function Posts() {
-  const [posts, setPosts] = useState<any[]>([]);
-  const [editingPost, setEditingPost] = useState<any>(null);
+  const [posts, setPosts] = useState<CommentPost[]>([]);
+  const [editingPost, setEditingPost] = useState<CommentPost | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [selectedPost, setSelectedPost] = useState<CommentPost | null>(null);
   const [msg, setMsg] = useState("");
   const { isLoggedIn } = useSelector((state: RootState) => state.auth);
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<PostData>();
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<PostFormData>();
+  const { execute, loading, error } = useApi();
 
   useEffect(() => {
     fetchPosts();
@@ -29,21 +33,21 @@ export default function Posts() {
 
   const fetchPosts = async () => {
     try {
-      const data = await getCommentPosts();
+      const data = await execute(() => getCommentPosts());
       setPosts(data.posts || []);
     } catch (err) {
       console.log(err);
     }
   };
 
-  const onSubmit = async (data: PostData) => {
+  const onSubmit = async (data: PostFormData) => {
     try {
       if (editingPost) {
-        await updateCommentPost(editingPost.id, data);
-        setMsg("Comment post updated successfully!");
+        await execute(() => updateCommentPost(editingPost.id, data));
+        setMsg(MESSAGES.POST_UPDATED);
       } else {
-        await createCommentPost(data);
-        setMsg("Comment post created successfully!");
+        await execute(() => createCommentPost(data));
+        setMsg(MESSAGES.POST_CREATED);
       }
       reset();
       setEditingPost(null);
@@ -55,7 +59,7 @@ export default function Posts() {
     }
   };
 
-  const handleEdit = (post: any) => {
+  const handleEdit = (post: CommentPost) => {
     setEditingPost(post);
     setValue("target_gender", post.target_gender);
     setValue("target_job", post.target_job);
@@ -123,45 +127,36 @@ export default function Posts() {
           <h3 style={{marginBottom: '1rem', fontSize: '1.1rem'}}>Search</h3>
           <form onSubmit={handleSearch} className="search-form">
             <select name="target_gender">
-              <option value="">Any Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
+              {GENDER_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
             </select>
             <input name="target_job" placeholder="Job" />
-            <input name="target_birth_year" type="number" placeholder="Birth Year" />
+            <input name="target_birth_year" type="number" placeholder="Birth Year" min={BIRTH_YEAR_RANGE.MIN} max={BIRTH_YEAR_RANGE.MAX} />
             <div className="height-range">
               <span>Height:</span>
-              <input name="height_min" type="number" placeholder="Min" min="140" max="220" />
+              <input name="height_min" type="number" placeholder="Min" min={HEIGHT_RANGE.MIN} max={HEIGHT_RANGE.MAX} />
               <span>-</span>
-              <input name="height_max" type="number" placeholder="Max" min="140" max="220" />
+              <input name="height_max" type="number" placeholder="Max" min={HEIGHT_RANGE.MIN} max={HEIGHT_RANGE.MAX} />
               <span>cm</span>
             </div>
             <input name="target_app" placeholder="App" />
             <button type="submit">Search</button>
             <button type="button" onClick={handleClearFilters} style={{background: '#6c757d'}}>Clear</button>
           </form>
+          {error && <div className="message error" style={{marginTop: '1rem', fontSize: '0.8rem'}}>{error}</div>}
           {msg && <div className="message success" style={{marginTop: '1rem', fontSize: '0.8rem'}}>{msg}</div>}
+          {loading && <div style={{marginTop: '1rem', fontSize: '0.8rem', color: '#666'}}>Loading...</div>}
         </div>
 
         <div className="posts-main">
           <div className="posts-grid">
             {posts.map((post) => (
-              <div key={post.id} className="post-card" onClick={() => setSelectedPost(post)}>
-                <div className="post-preview">
-                  <div><strong>{post.target_gender}</strong> • {post.target_job}</div>
-                  <div>{post.target_birth_year} • {post.target_height}cm</div>
-                  <div style={{marginTop: '0.5rem', fontSize: '0.7rem'}}>{post.target_app}</div>
-                  <div style={{marginTop: '0.5rem'}}>
-                    <div className="comment-text" style={{fontSize: '0.75rem', color: '#888', marginBottom: '0.5rem'}}>
-                      {post.comment.length > 50 ? post.comment.substring(0, 50) + '...' : post.comment}
-                    </div>
-                  </div>
-                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <span>❤️ {post.likes_count || 0}</span>
-                    <span>{new Date(post.created_at).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              </div>
+              <PostCard 
+                key={post.id} 
+                post={post} 
+                onClick={() => setSelectedPost(post)} 
+              />
             ))}
           </div>
         </div>
